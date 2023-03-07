@@ -1,3 +1,4 @@
+import { useState } from 'react'
 
 const Header = (props) => {
     return (
@@ -24,8 +25,42 @@ const Sum_up = (props) => {
             <p>Number of exercises {acc}</p>
         </div>)
 }
+const Age = (props) => {
+    const {name,age} = props
+    const [ counter, setCounter ] = useState(0) // first element is an accumlator
+    // and the second element is a update method. useState(0) is the initial value
+    function change(val) {
+        if(counter+val < 0){
+            setCounter(0)
+        }else {
+            setCounter(counter + val)
+        }
+    }
+    function reset(){
+        setCounter(0)
+    }
+    setTimeout(
+        () => setCounter(counter + 1),
+        1000
+    )
+    const bornYear = () => new Date().getFullYear() - age
+    return (
+        <div>
+            <p> {name} is {age} years old </p>
+            <p> {name} was born in {bornYear()} </p>
+            <p>{counter}</p>
+            <button onClick={()=>change(1)}>Increment</button>
+            <button onClick={()=>change(-1)}>Decrement</button>
+            <button onClick= {reset}>Reset</button>
+            <p>time: {counter}</p>
+
+        </div>
+    )
+}
 const App = () => {
     const course = 'Half Stack application development'
+    const name = "Peter"
+    const age = 18
     const parts = [
         {
             name: 'Fundamentals of React',
@@ -46,6 +81,7 @@ const App = () => {
             <Header course = {course}/>
             <Content parts = {parts}/>
             <Sum_up total = {parts}/>
+            <Age age = {age} name = {name}/>
         </div>
         )
 }
