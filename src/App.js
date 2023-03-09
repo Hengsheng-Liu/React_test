@@ -25,65 +25,44 @@ const Sum_up = (props) => {
             <p>Number of exercises {acc}</p>
         </div>)
 }
-const Age = (props) => {
-    const {name,age} = props
-    const [ counter, setCounter ] = useState(0) // first element is an accumlator
-    // and the second element is a update method. useState(0) is the initial value
-    function change(val) {
-        if(counter+val < 0){
-            setCounter(0)
-        }else {
+const Display = ({counter}) => <div>Counter: {counter}</div>
+
+
+const Button = ({handleClick,text}) => <button onClick={handleClick}>{text} </button>
+
+
+    const App = () => {
+        const [counter, setCounter] = useState(0)
+        const course = 'Half Stack application development'
+        const change = (val) => {
             setCounter(counter + val)
         }
-    }
-    function reset(){
-        setCounter(0)
-    }
-    setTimeout(
-        () => setCounter(counter + 1),
-        1000
-    )
-    const bornYear = () => new Date().getFullYear() - age
-    return (
-        <div>
-            <p> {name} is {age} years old </p>
-            <p> {name} was born in {bornYear()} </p>
-            <p>{counter}</p>
-            <button onClick={()=>change(1)}>Increment</button>
-            <button onClick={()=>change(-1)}>Decrement</button>
-            <button onClick= {reset}>Reset</button>
-            <p>time: {counter}</p>
+        const setToZero = () => setCounter(0)
+        const parts = [
+            {
+                name: 'Fundamentals of React',
+                exercises: 10
+            },
+            {
+                name: 'Using props to pass data',
+                exercises: 7
+            },
+            {
+                name: 'State of a component',
+                exercises: 14
+            }
+        ]
 
-        </div>
-    )
-}
-const App = () => {
-    const course = 'Half Stack application development'
-    const name = "Peter"
-    const age = 18
-    const parts = [
-        {
-            name: 'Fundamentals of React',
-            exercises: 10
-        },
-        {
-            name: 'Using props to pass data',
-            exercises: 7
-        },
-        {
-            name: 'State of a component',
-            exercises: 14
-        }
-    ]
-
-    return (
-        <div>
-            <Header course = {course}/>
-            <Content parts = {parts}/>
-            <Sum_up total = {parts}/>
-            <Age age = {age} name = {name}/>
-        </div>
+        return (
+            <div>
+                <Display counter={counter}/>
+                <Header course={course}/>
+                <Button handleClick={() => change(1)} text={"+"}/>
+                <Button handleClick={() => change(1)} text={"-"}/>
+                <Button handleClick={setToZero} text={"Reset"}/>
+                <Content parts={parts}/>
+            </div>
         )
-}
+    }
 
-export default App;
+    export default App;
