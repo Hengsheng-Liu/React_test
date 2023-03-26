@@ -1,68 +1,66 @@
-import { useState } from 'react'
-
-const Header = (props) => {
-    return (
-        <div>
-            <h1>{props.course}</h1>
-        </div>
-    )
-}
-const Content = (props) => {
-    return (
-        <div>
-            {props.parts.map(part =>
-            <p>{part.name} {part.exercises}</p>
-            )}
-        </div>
-    )
-}
-const Sum_up = (props) => {
-    let acc = 0
-        props.total.map(value => {
-            acc+=value.exercises  // numbers 1, -1, 3, 5 are printed, each to own line
-        })
-        return(<div>
-            <p>Number of exercises {acc}</p>
-        </div>)
-}
-const Display = ({counter}) => <div>Counter: {counter}</div>
-
-
-const Button = ({handleClick,text}) => <button onClick={handleClick}>{text} </button>
-
-
-    const App = () => {
-        const [counter, setCounter] = useState(0)
-        const course = 'Half Stack application development'
-        const change = (val) => {
-            setCounter(counter + val)
-        }
-        const setToZero = () => setCounter(0)
-        const parts = [
-            {
-                name: 'Fundamentals of React',
-                exercises: 10
-            },
-            {
-                name: 'Using props to pass data',
-                exercises: 7
-            },
-            {
-                name: 'State of a component',
-                exercises: 14
-            }
-        ]
-
-        return (
-            <div>
-                <Display counter={counter}/>
-                <Header course={course}/>
-                <Button handleClick={() => change(1)} text={"+"}/>
-                <Button handleClick={() => change(1)} text={"-"}/>
-                <Button handleClick={setToZero} text={"Reset"}/>
-                <Content parts={parts}/>
-            </div>
-        )
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import Note from './components/Note'
+const App = () => {
+    const [notes, setNotes] = useState([])
+    const [newNote, setNewNote] = useState('')
+    const [showAll, setShowAll] = useState(true)
+    useEffect(() => {
+        console.log('effect')
+        axios
+            .get('http://localhost:3001/notes')
+            .then(response => {
+                console.log('promise fulfilled')
+                setNotes(response.data)
+            })
+    }, [])
+    console.log('render', notes.length, 'notes')
+    //this function handle input change
+    const handleNoteChange = (event) => {
+        console.log(event.target.value)
+        setNewNote(event.target.value)
     }
+    const addNote = event => {
+        event.preventDefault()
+        const noteObject = {
+            content: newNote,
+            important: Math.random() < 0.5,
+        }
 
-    export default App;
+        axios
+            .post('http://localhost:3001/notes', noteObject)
+            .then(response => {
+                console.log(response)
+                setNotes(notes.concat(response.data))
+                setNewNote('')
+            })
+    }
+    const toggleImportanceOf = id => {
+        const url = `http://localhost:3001/notes/${id}`
+        const note = notes.find(n => n.id === id)
+        const changedNote = {...note, important: !note.important}
+
+        axios.put(url, changedNote).then(response => {
+            setNotes(notes.map(n => n.id !== id ? n : response.data))
+        })
+    }
+    return (
+        <div>
+            <h1>Notes</h1>
+            <ul>
+                {notes.map(note =>
+                    <Note key={note.id} note={note}
+                          toggleImportance={() => toggleImportanceOf(note.id)}/>
+                )}
+            </ul>
+            <form onSubmit={addNote}>
+                <input
+                    value={newNote}
+                    onChange={handleNoteChange}
+                />
+                <button type="submit">save</button>
+            </form>
+        </div>
+    )
+}
+export default App;
